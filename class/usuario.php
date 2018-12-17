@@ -80,12 +80,7 @@ class Usuario {
 
         if (count($result) > 0) {
 
-            $row = $result[0];
-
-            $this->setIdusuarios($row['id_usuarios']);
-            $this->setDeslogin($row['deslogin']);
-            $this->setDessenha($row['dessenha']);
-            $this->setDtcadastro(new DateTime($row['dt_cadastro']));
+            $this->setData($result[0]);
         }
     }
 
@@ -123,15 +118,54 @@ class Usuario {
 
         if (count($result) > 0) {
 
-            $row = $result[0];
+            $this->setData($result[0]);
 
-            $this->setIdusuarios($row['id_usuarios']);
-            $this->setDeslogin($row['deslogin']);
-            $this->setDessenha($row['dessenha']);
-            $this->setDtcadastro(new DateTime($row['dt_cadastro']));
         } else {
             throw new Exception("Login e/ou senha inválidos.");
         }
+    }
+
+    public function update($login, $password){
+
+        $this->setDeslogin($login);
+        $this->setDessenha($password);
+
+        $sql = new Sql();
+
+        $sql->query("UPDATE tb_usuarios SET deslogin = :LOGIN, dessenha = :PASSWORD WHERE id_usuarios = :ID", array(
+            ":LOGIN"=>$this->getDeslogin(),
+            ":PASSWORD"=>$this->getDessenha(),
+            ":ID"=>$this->getIdusuarios()
+        ));
+    }
+
+    public function insert(){
+
+        $sql = new Sql();
+
+        $result = $sql->select("CALL sp_usuarios_insert(:LOGIN, :PASSWORD)", array(
+            ":LOGIN"=>$this->getDeslogin(),
+            ":PASSWORD"=>$this->getDessenha()
+        ));
+
+        if (count ($result) > 0){
+            $this->setData($result[0]);
+        }
+    }
+
+    public function __construct($login = "", $password = ""){
+
+        $this->setDeslogin($login);
+        $this->setDessenha($password);
+    }
+
+    public function setData($data){
+
+        $this->setIdusuarios($data['id_usuarios']);
+        $this->setDeslogin($data['deslogin']);
+        $this->setDessenha($data['dessenha']);
+        $this->setDtcadastro(new DateTime($data['dt_cadastro']));
+
     }
 
 
